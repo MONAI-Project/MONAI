@@ -47,7 +47,7 @@ __all__ = ["Compose", "OneOf", "RandomOrder", "SomeOf", "execute_compose"]
 def execute_compose(
     data: NdarrayOrTensor | Sequence[NdarrayOrTensor] | Mapping[Any, NdarrayOrTensor],
     transforms: Sequence[Any],
-    map_items: bool = True,
+    map_items: bool | int = True,
     unpack_items: bool = False,
     start: int = 0,
     end: int | None = None,
@@ -66,7 +66,7 @@ def execute_compose(
         data: a tensor-like object to be transformed
         transforms: a sequence of transforms to be carried out
         map_items: whether to apply transform to each item in the input `data` if `data` is a list or tuple.
-            defaults to `True`.
+            defaults to `True`. If set to an integer, recursively map the items in `data` `map_items` times.
         unpack_items: whether to unpack input `data` with `*` as parameters for the callable function of transform.
             defaults to `False`.
         start: the index of the first transform to be executed. If not set, this defaults to 0
@@ -206,7 +206,7 @@ class Compose(Randomizable, InvertibleTransform, LazyTransform):
     Args:
         transforms: sequence of callables.
         map_items: whether to apply transform to each item in the input `data` if `data` is a list or tuple.
-            defaults to `True`.
+            defaults to `True`. If set to an integer, recursively map the items in `data` `map_items` times.
         unpack_items: whether to unpack input `data` with `*` as parameters for the callable function of transform.
             defaults to `False`.
         log_stats: this optional parameter allows you to specify a logger by name for logging of pipeline execution.
@@ -227,7 +227,7 @@ class Compose(Randomizable, InvertibleTransform, LazyTransform):
     def __init__(
         self,
         transforms: Sequence[Callable] | Callable | None = None,
-        map_items: bool = True,
+        map_items: bool | int = True,
         unpack_items: bool = False,
         log_stats: bool | str = False,
         lazy: bool | None = False,
@@ -238,9 +238,9 @@ class Compose(Randomizable, InvertibleTransform, LazyTransform):
         if transforms is None:
             transforms = []
 
-        if not isinstance(map_items, bool):
+        if not isinstance(map_items, (bool, int)):
             raise ValueError(
-                f"Argument 'map_items' should be boolean. Got {type(map_items)}."
+                f"Argument 'map_items' should be boolean or int. Got {type(map_items)}."
                 "Check brackets when passing a sequence of callables."
             )
 
@@ -392,7 +392,7 @@ class OneOf(Compose):
         weights: probabilities corresponding to each callable in transforms.
             Probabilities are normalized to sum to one.
         map_items: whether to apply transform to each item in the input `data` if `data` is a list or tuple.
-            defaults to `True`.
+            defaults to `True`. If set to an integer, recursively map the items in `data` `map_items` times.
         unpack_items: whether to unpack input `data` with `*` as parameters for the callable function of transform.
             defaults to `False`.
         log_stats: this optional parameter allows you to specify a logger by name for logging of pipeline execution.
@@ -414,7 +414,7 @@ class OneOf(Compose):
         self,
         transforms: Sequence[Callable] | Callable | None = None,
         weights: Sequence[float] | float | None = None,
-        map_items: bool = True,
+        map_items: bool | int = True,
         unpack_items: bool = False,
         log_stats: bool | str = False,
         lazy: bool | None = False,

@@ -109,6 +109,27 @@ class TestNormalizeIntensity(NumpyImageTestCase2D):
         assert_allclose(normalized, im_type(expected), type_test="tensor")
 
     @parameterized.expand([[p] for p in TEST_NDARRAYS])
+    def test_channel_wise_int(self, im_type):
+        normalizer = NormalizeIntensity(nonzero=True, channel_wise=True)
+        input_data = im_type(torch.arange(1, 25).reshape(2, 3, 4))
+        expected = np.array(
+            [
+                [
+                    [-1.593255, -1.3035723, -1.0138896, -0.7242068],
+                    [-0.4345241, -0.1448414, 0.1448414, 0.4345241],
+                    [0.7242068, 1.0138896, 1.3035723, 1.593255],
+                ],
+                [
+                    [-1.593255, -1.3035723, -1.0138896, -0.7242068],
+                    [-0.4345241, -0.1448414, 0.1448414, 0.4345241],
+                    [0.7242068, 1.0138896, 1.3035723, 1.593255],
+                ],
+            ]
+        )
+        normalized = normalizer(input_data)
+        assert_allclose(normalized, im_type(expected), type_test="tensor", rtol=1e-7, atol=1e-7)  # tolerance
+
+    @parameterized.expand([[p] for p in TEST_NDARRAYS])
     def test_value_errors(self, im_type):
         input_data = im_type(np.array([[0.0, 3.0, 0.0, 4.0], [0.0, 4.0, 0.0, 5.0]]))
         normalizer = NormalizeIntensity(nonzero=True, channel_wise=True, subtrahend=[1])

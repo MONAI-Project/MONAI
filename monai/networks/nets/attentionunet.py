@@ -22,18 +22,19 @@ from monai.networks.layers.factories import Norm
 __all__ = ["AttentionUnet"]
 
 
+# `ConvBlock` 是一個兩層卷積的基本模組，每一層都有激活函數 (ReLU)、標準化層 (BatchNorm)、Dropout 等組成。
 class ConvBlock(nn.Module):
-
     def __init__(
         self,
-        spatial_dims: int,
-        in_channels: int,
-        out_channels: int,
-        kernel_size: Sequence[int] | int = 3,
-        strides: int = 1,
-        dropout=0.0,
+        spatial_dims: int,  # 定義輸入影像的空間維度 (2D 或 3D)
+        in_channels: int,   # 定義輸入通道數
+        out_channels: int,  # 定義輸出通道數 (即特徵圖數)
+        kernel_size: Sequence[int] | int = 3,  # 卷積核大小，通常設定為 3
+        strides: int = 1,  # 步幅，決定輸出特徵圖的縮放
+        dropout=0.0,  # Dropout 機率，默認為 0，意味著不進行隨機失活
     ):
         super().__init__()
+        # 構建兩層卷積層，每層有激活函數、標準化和可選的 Dropout
         layers = [
             Convolution(
                 spatial_dims=spatial_dims,
@@ -41,11 +42,10 @@ class ConvBlock(nn.Module):
                 out_channels=out_channels,
                 kernel_size=kernel_size,
                 strides=strides,
-                padding=None,
-                adn_ordering="NDA",
-                act="relu",
-                norm=Norm.BATCH,
-                dropout=dropout,
+                adn_ordering="NDA",  # Ordering: Norm -> Dropout -> Activation
+                act="relu",  # 激活函數為 ReLU
+                norm=Norm.BATCH,  # 使用 Batch Normalization
+                dropout=dropout,  # Dropout 機率
             ),
             Convolution(
                 spatial_dims=spatial_dims,
@@ -53,7 +53,6 @@ class ConvBlock(nn.Module):
                 out_channels=out_channels,
                 kernel_size=kernel_size,
                 strides=1,
-                padding=None,
                 adn_ordering="NDA",
                 act="relu",
                 norm=Norm.BATCH,

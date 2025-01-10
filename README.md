@@ -59,6 +59,19 @@ If you have used MONAI in your research, please cite us! The citation can be exp
 [The MONAI Model Zoo](https://github.com/Project-MONAI/model-zoo) is a place for researchers and data scientists to share the latest and great models from the community.
 Utilizing [the MONAI Bundle format](https://docs.monai.io/en/latest/bundle_intro.html) makes it easy to [get started](https://github.com/Project-MONAI/tutorials/tree/main/model_zoo) building workflows with MONAI.
 
+## Quick Start Example
+Here's a simple example of using MONAI for medical image preprocessing:
+
+```python
+import monai
+from monai.transforms import LoadImage, Spacing
+
+# Load a medical image
+image = LoadImage()(image_path)
+# Resample the image to a specific spacing
+spaced_image = Spacing(pixdim=(1.5, 1.5, 2.0))(image)
+```
+
 ## Contributing
 For guidance on making a contribution to MONAI, see the [contributing guidelines](https://github.com/Project-MONAI/MONAI/blob/dev/CONTRIBUTING.md).
 

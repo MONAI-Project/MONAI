@@ -989,6 +989,8 @@ class NibabelReader(ImageReader):
 
         for i, filename in zip(ensure_tuple(img), self.filenames):
             header = self._get_meta_dict(i)
+            if MetaKeys.PIXDIM in header:
+                header[MetaKeys.ORIGINAL_PIXDIM] = np.array(header[MetaKeys.PIXDIM], copy=True)
             header[MetaKeys.AFFINE] = self._get_affine(i)
             header[MetaKeys.ORIGINAL_AFFINE] = self._get_affine(i)
             header["as_closest_canonical"] = self.as_closest_canonical

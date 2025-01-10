@@ -102,6 +102,12 @@ def spatial_resample(
     spatial_rank = min(len(img.shape) - 1, src_affine.shape[0] - 1, 3)
     if (not isinstance(spatial_size, int) or spatial_size != -1) and spatial_size is not None:
         spatial_rank = min(len(ensure_tuple(spatial_size)), 3)  # infer spatial rank based on spatial_size
+    if src_affine.shape[0] != spatial_rank + 1:
+        warnings.warn(
+            f"Expected `affine_matrix` of size ({spatial_rank+1},{spatial_rank+1}) "
+            f"for {spatial_rank}D input got ({src_affine.shape[0]},{src_affine.shape[0]}). "
+            f"The affine matrix will be truncated for {spatial_rank}D input."
+        )
     src_affine = to_affine_nd(spatial_rank, src_affine).to(torch.float64)
     dst_affine = to_affine_nd(spatial_rank, dst_affine) if dst_affine is not None else src_affine
     dst_affine = convert_to_dst_type(dst_affine, src_affine)[0]

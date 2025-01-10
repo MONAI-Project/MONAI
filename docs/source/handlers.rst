@@ -53,6 +53,12 @@ ROC AUC metrics handler
     :members:
 
 
+Average Precision metric handler
+--------------------------------
+.. autoclass:: AveragePrecision
+    :members:
+
+
 Confusion matrix metrics handler
 --------------------------------
 .. autoclass:: ConfusionMatrix

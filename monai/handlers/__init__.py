@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+from .average_precision import AveragePrecision
 from .checkpoint_loader import CheckpointLoader
 from .checkpoint_saver import CheckpointSaver
 from .classification_saver import ClassificationSaver

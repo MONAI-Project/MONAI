@@ -330,57 +330,67 @@ class DataAnalyzer:
         if not has_tqdm:
             warnings.warn("tqdm is not installed. not displaying the caching progress.")
 
-        for batch_data in tqdm(dataloader) if (has_tqdm and rank == 0) else dataloader:
-            batch_data = batch_data[0]
-            try:
-                batch_data[self.image_key] = batch_data[self.image_key].to(device)
-                _label_argmax = False
-                if self.label_key is not None:
-                    label = batch_data[self.label_key]
-                    label = torch.argmax(label, dim=0) if label.shape[0] > 1 else label[0]
-                    _label_argmax = True  # track if label is argmaxed
-                    batch_data[self.label_key] = label.to(device)
-                d = summarizer(batch_data)
-            except BaseException as err:
-                if "image_meta_dict" in batch_data.keys():
-                    filename = batch_data["image_meta_dict"][ImageMetaKey.FILENAME_OR_OBJ]
-                else:
-                    filename = batch_data[self.image_key].meta[ImageMetaKey.FILENAME_OR_OBJ]
-                logger.info(f"Unable to process data {filename} on {device}. {err}")
-                if self.device.type == "cuda":
-                    logger.info("DataAnalyzer `device` set to GPU execution hit an exception. Falling back to `cpu`.")
-                    try:
-                        batch_data[self.image_key] = batch_data[self.image_key].to("cpu")
-                        if self.label_key is not None:
-                            label = batch_data[self.label_key]
-                            if not _label_argmax:
-                                label = torch.argmax(label, dim=0) if label.shape[0] > 1 else label[0]
-                            batch_data[self.label_key] = label.to("cpu")
-                        d = summarizer(batch_data)
-                    except BaseException as err:
-                        logger.info(f"Unable to process data {filename} on {device}. {err}")
+        try:
+            for batch_data in tqdm(dataloader) if (has_tqdm and rank == 0) else dataloader:
+                batch_data = batch_data[0]
+                try:
+                    batch_data[self.image_key] = batch_data[self.image_key].to(device)
+                    _label_argmax = False
+                    if self.label_key is not None:
+                        label = batch_data[self.label_key]
+                        label = torch.argmax(label, dim=0) if label.shape[0] > 1 else label[0]
+                        _label_argmax = True  # track if label is argmaxed
+                        batch_data[self.label_key] = label.to(device)
+                    d = summarizer(batch_data)
+                except BaseException as err:
+                    filename = self._get_filename(batch_data)
+                    logger.info(f"Unable to process data {filename} on {device}. {err}")
+                    if self.device.type == "cuda":
+                        logger.info(
+                            "DataAnalyzer `device` set to GPU execution hit an exception. Falling back to `cpu`."
+                        )
+                        try:
+                            batch_data[self.image_key] = batch_data[self.image_key].to("cpu")
+                            if self.label_key is not None:
+                                label = batch_data[self.label_key]
+                                if not _label_argmax:
+                                    label = torch.argmax(label, dim=0) if label.shape[0] > 1 else label[0]
+                                batch_data[self.label_key] = label.to("cpu")
+                            d = summarizer(batch_data)
+                        except BaseException as err:
+                            logger.info(f"Unable to process data {filename} on {device}. {err}")
+                            continue
+                    else:
                         continue
-                else:
-                    continue
 
-            stats_by_cases = {
-                DataStatsKeys.BY_CASE_IMAGE_PATH: d[DataStatsKeys.BY_CASE_IMAGE_PATH],
-                DataStatsKeys.BY_CASE_LABEL_PATH: d[DataStatsKeys.BY_CASE_LABEL_PATH],
-            }
-            if not self.histogram_only:
-                stats_by_cases[DataStatsKeys.IMAGE_STATS] = d[DataStatsKeys.IMAGE_STATS]
-            if self.hist_bins != 0:
-                stats_by_cases[DataStatsKeys.IMAGE_HISTOGRAM] = d[DataStatsKeys.IMAGE_HISTOGRAM]
+                stats_by_cases = {
+                    DataStatsKeys.BY_CASE_IMAGE_PATH: d[DataStatsKeys.BY_CASE_IMAGE_PATH],
+                    DataStatsKeys.BY_CASE_LABEL_PATH: d[DataStatsKeys.BY_CASE_LABEL_PATH],
+                }
+                if not self.histogram_only:
+                    stats_by_cases[DataStatsKeys.IMAGE_STATS] = d[DataStatsKeys.IMAGE_STATS]
+                if self.hist_bins != 0:
+                    stats_by_cases[DataStatsKeys.IMAGE_HISTOGRAM] = d[DataStatsKeys.IMAGE_HISTOGRAM]
 
-            if self.label_key is not None:
-                stats_by_cases.update(
-                    {
-                        DataStatsKeys.FG_IMAGE_STATS: d[DataStatsKeys.FG_IMAGE_STATS],
-                        DataStatsKeys.LABEL_STATS: d[DataStatsKeys.LABEL_STATS],
-                    }
-                )
-            result_bycase[DataStatsKeys.BY_CASE].append(stats_by_cases)
+                if self.label_key is not None:
+                    stats_by_cases.update(
+                        {
+                            DataStatsKeys.FG_IMAGE_STATS: d[DataStatsKeys.FG_IMAGE_STATS],
+                            DataStatsKeys.LABEL_STATS: d[DataStatsKeys.LABEL_STATS],
+                        }
+                    )
+                result_bycase[DataStatsKeys.BY_CASE].append(stats_by_cases)
+        except RuntimeError as e:
+            filename = self._get_filename(batch_data)
+            raise RuntimeError(f"Interrupted while processing data {filename} on {device}. {e}") from e
+
         if manager_list is None:
             return result_bycase
         else:
             manager_list.append(result_bycase)
+
+    def _get_filename(self, batch_data):
+        if "image_meta_dict" in batch_data.keys():
+            return batch_data["image_meta_dict"][ImageMetaKey.FILENAME_OR_OBJ]
+        else:
+            return batch_data[self.image_key].meta[ImageMetaKey.FILENAME_OR_OBJ]

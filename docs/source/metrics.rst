@@ -117,6 +117,13 @@ Metrics
 .. autoclass:: PanopticQualityMetric
     :members:
 
+:math:`R^{2}` score
+-------------------
+.. autofunction:: compute_r2_score
+
+.. autoclass:: R2Metric
+    :members:
+
 `Mean squared error`
 --------------------
 .. autoclass:: MSEMetric

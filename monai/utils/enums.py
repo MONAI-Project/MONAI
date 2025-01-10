@@ -29,6 +29,7 @@ __all__ = [
     "NdimageMode",
     "GridSamplePadMode",
     "Average",
+    "MultiOutput",
     "MetricReduction",
     "LossReduction",
     "DiceCEReduction",
@@ -220,6 +221,16 @@ class Average(StrEnum):
     WEIGHTED = "weighted"
     MICRO = "micro"
     NONE = "none"
+
+
+class MultiOutput(StrEnum):
+    """
+    See also: :py:func:`monai.metrics.r2_score.compute_r2_score`
+    """
+
+    RAW = "raw_values"
+    UNIFORM = "uniform_average"
+    VARIANCE = "variance_weighted"
 
 
 class MetricReduction(StrEnum):

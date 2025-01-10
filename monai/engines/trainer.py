@@ -46,7 +46,7 @@ class Trainer(Workflow):
 
     """
 
-    def run(self) -> None:  # type: ignore[override]
+    def run(self, *args) -> None:  # type: ignore[override]
         """
         Execute training based on Ignite Engine.
         If call this function multiple times, it will continuously run from the previous state.

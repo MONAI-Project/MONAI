@@ -97,6 +97,8 @@ __all__ = [
     "FgBgToIndices",
     "ClassesToIndices",
     "ConvertToMultiChannelBasedOnBratsClasses",
+    "ConvertToMultiChannelBasedOnBrats23Classes",
+    "ConvertToMultiChannelBasedOnBrats23ClassesNoReg",
     "AddExtremePointsChannel",
     "TorchVision",
     "TorchIO",
@@ -1071,6 +1073,48 @@ class ConvertToMultiChannelBasedOnBratsClasses(Transform):
         result = [(img == 1) | (img == 4), (img == 1) | (img == 4) | (img == 2), img == 4]
         # merge labels 1 (tumor non-enh) and 4 (tumor enh) and 2 (large edema) to WT
         # label 4 is ET
+        return torch.stack(result, dim=0) if isinstance(img, torch.Tensor) else np.stack(result, axis=0)
+
+
+class ConvertToMultiChannelBasedOnBrats23Classes(Transform):
+    """
+    Convert labels to multi channels based on brats23 classes:
+    label 1 is the necrotic and non-enhancing tumor core (NCR)
+    label 2 is the peritumoral edema (ED)
+    label 3 is the GD-enhancing tumor (ET)
+    NOTE: REGION-BASED CONVERSION to TC, WT, ET
+    """
+
+    backend = [TransformBackends.TORCH, TransformBackends.NUMPY]
+
+    def __call__(self, img: NdarrayOrTensor) -> NdarrayOrTensor:
+        # if img has channel dim, squeeze it
+        if img.ndim == 4 and img.shape[0] == 1:
+            img = img.squeeze(0)
+
+        result = [(img == 1) | (img == 3), (img == 1) | (img == 3) | (img == 2), img == 3]  # -> tc, wt, et
+        # merge labels 1 (ncr) and 3 (et) and 2 (ed) to WT
+        return torch.stack(result, dim=0) if isinstance(img, torch.Tensor) else np.stack(result, axis=0)
+
+
+class ConvertToMultiChannelBasedOnBrats23ClassesNoReg(Transform):
+    """
+    Convert labels to multi channels based on brats23 classes:
+    label 1 is the necrotic and non-enhancing tumor core (NCR)
+    label 2 is the peritumoral edema (ED)
+    label 3 is the GD-enhancing tumor (ET)
+    NOTE: LABEL-BASED CONVERSION
+    """
+
+    backend = [TransformBackends.TORCH, TransformBackends.NUMPY]
+
+    def __call__(self, img: NdarrayOrTensor) -> NdarrayOrTensor:
+        # if img has channel dim, squeeze it
+        if img.ndim == 4 and img.shape[0] == 1:
+            img = img.squeeze(0)
+
+        result = [(img == 1), (img == 2), (img == 3)]
+
         return torch.stack(result, dim=0) if isinstance(img, torch.Tensor) else np.stack(result, axis=0)
 
 

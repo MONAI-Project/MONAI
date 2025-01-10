@@ -24,6 +24,7 @@ __all__ = [
     "SplineMode",
     "InterpolateMode",
     "UpsampleMode",
+    "DataCollateMode",
     "BlendMode",
     "PytorchPadMode",
     "NdimageMode",
@@ -179,6 +180,16 @@ class UpsampleMode(StrEnum):
     DECONVGROUP = "deconvgroup"
     NONTRAINABLE = "nontrainable"  # e.g. using torch.nn.Upsample
     PIXELSHUFFLE = "pixelshuffle"
+
+
+class DataCollateMode(StrEnum):
+    """
+    See also: :py:class:`monai.transforms.PadOrCropListDataCollate`
+    """
+
+    PAD = "pad"
+    CROP = "crop"
+    RESIZE = "resize"
 
 
 class BlendMode(StrEnum):

@@ -159,7 +159,7 @@ class UpCat(nn.Module):
         """
         x_0 = self.upsample(x)
 
-        if x_e is not None and torch.jit.isinstance(x_e, torch.Tensor):
+        if x_e is not None and isinstance(x_e, torch.Tensor):
             if self.is_pad:
                 # handling spatial shapes due to the 2x maxpooling with odd edge lengths.
                 dimensions = len(x.shape) - 2

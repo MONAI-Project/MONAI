@@ -1137,11 +1137,14 @@ class RandCropBoxByPosNegLabeld(Randomizable, MapTransform):
                 extended_boxes[:, axis] = boxes_start[:, axis] - self.spatial_size[axis] // 2 + 1
                 extended_boxes[:, axis + spatial_dims] = boxes_stop[:, axis] + self.spatial_size[axis] // 2 - 1
             else:
+                # the cropper will extend an additional pixel to the left side when the size is even
+                radius_left = self.spatial_size[axis] // 2
+                radius_right = self.spatial_size[axis] - radius_left - 1  # we subtract 1 for the center voxel
                 # extended box start
-                extended_boxes[:, axis] = boxes_stop[:, axis] - self.spatial_size[axis] // 2 - 1
+                extended_boxes[:, axis] = boxes_stop[:, axis] - radius_right
                 extended_boxes[:, axis] = np.minimum(extended_boxes[:, axis], boxes_start[:, axis])
                 # extended box stop
-                extended_boxes[:, axis + spatial_dims] = extended_boxes[:, axis] + self.spatial_size[axis] // 2
+                extended_boxes[:, axis + spatial_dims] = boxes_start[:, axis] + radius_left
                 extended_boxes[:, axis + spatial_dims] = np.maximum(
                     extended_boxes[:, axis + spatial_dims], boxes_stop[:, axis]
                 )

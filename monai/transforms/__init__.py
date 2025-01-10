@@ -694,6 +694,7 @@ from .utils import (
     generate_label_classes_crop_centers,
     generate_pos_neg_label_crop_centers,
     generate_spatial_bounding_box,
+    generate_spatial_bounding_boxes,
     get_extreme_points,
     get_largest_connected_component_mask,
     get_number_image_type_conversions,

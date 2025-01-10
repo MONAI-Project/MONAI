@@ -1329,6 +1329,7 @@ class RandCropByLabelClasses(Randomizable, TraceableTransform, LazyTransform, Mu
         label: torch.Tensor | None = None,
         indices: list[NdarrayOrTensor] | None = None,
         image: torch.Tensor | None = None,
+        img: torch.Tensor | None = None,
     ) -> None:
         indices_ = self.indices if indices is None else indices
         if indices_ is None:
@@ -1344,8 +1345,19 @@ class RandCropByLabelClasses(Randomizable, TraceableTransform, LazyTransform, Mu
             _shape = image.peek_pending_shape() if isinstance(image, MetaTensor) else image.shape[1:]
         if _shape is None:
             raise ValueError("label or image must be provided to infer the output spatial shape.")
+        img_shape = None
+        if img is not None:
+            img_shape = img.peek_pending_shape() if isinstance(img, MetaTensor) else img.shape[1:]
         self.centers = generate_label_classes_crop_centers(
-            self.spatial_size, self.num_samples, _shape, indices_, self.ratios, self.R, self.allow_smaller, self.warn
+            self.spatial_size,
+            self.num_samples,
+            _shape,
+            indices_,
+            img_shape,
+            self.ratios,
+            self.R,
+            self.allow_smaller,
+            self.warn,
         )
 
     @LazyTransform.lazy.setter  # type: ignore
@@ -1381,7 +1393,7 @@ class RandCropByLabelClasses(Randomizable, TraceableTransform, LazyTransform, Mu
         if randomize:
             if label is None:
                 label = self.label
-            self.randomize(label, indices, image)
+            self.randomize(label, indices, image, img)
         results: list[torch.Tensor] = []
         if self.centers is not None:
             img_shape = img.peek_pending_shape() if isinstance(img, MetaTensor) else img.shape[1:]

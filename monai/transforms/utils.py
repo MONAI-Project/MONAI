@@ -699,6 +699,7 @@ def generate_label_classes_crop_centers(
     num_samples: int,
     label_spatial_shape: Sequence[int],
     indices: Sequence[NdarrayOrTensor],
+    img_spatial_shape: Sequence[int] | None = None,
     ratios: list[float | int] | None = None,
     rand_state: np.random.RandomState | None = None,
     allow_smaller: bool = False,
@@ -712,6 +713,7 @@ def generate_label_classes_crop_centers(
         spatial_size: spatial size of the ROIs to be sampled.
         num_samples: total sample centers to be generated.
         label_spatial_shape: spatial shape of the original label data to unravel selected centers.
+        img_spatial_shape: spatial shape of the original image data to correct crop centers.
         indices: sequence of pre-computed foreground indices of every class in 1 dimension.
         ratios: ratios of every class in the label to generate crop centers, including background class.
             if None, every class will have the same ratio to generate crop centers.
@@ -724,6 +726,11 @@ def generate_label_classes_crop_centers(
     """
     if rand_state is None:
         rand_state = np.random.random.__self__  # type: ignore
+
+    if img_spatial_shape is None:
+        img_spatial_shape = label_spatial_shape
+        if warn:
+            warnings.warn("img_spatial_shape not defined, expect invalid shape for samples.")
 
     if num_samples < 1:
         raise ValueError(f"num_samples must be an int number and greater than 0, got {num_samples}.")
@@ -752,7 +759,7 @@ def generate_label_classes_crop_centers(
         random_int = rand_state.randint(len(indices_to_use))
         center = unravel_index(indices_to_use[random_int], label_spatial_shape).tolist()
         # shift center to range of valid centers
-        centers.append(correct_crop_centers(center, spatial_size, label_spatial_shape, allow_smaller))
+        centers.append(correct_crop_centers(center, spatial_size, img_spatial_shape, allow_smaller))
 
     return ensure_tuple(centers)
 

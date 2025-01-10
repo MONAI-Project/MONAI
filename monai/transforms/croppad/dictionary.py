@@ -1132,9 +1132,12 @@ class RandCropByLabelClassesd(Randomizable, MapTransform, LazyTransform, MultiSa
         return self
 
     def randomize(
-        self, label: torch.Tensor, indices: list[NdarrayOrTensor] | None = None, image: torch.Tensor | None = None
+        self, label: torch.Tensor,
+        indices: list[NdarrayOrTensor] | None = None,
+        image: torch.Tensor | None = None,
+        img: torch.Tensor | None = None,
     ) -> None:
-        self.cropper.randomize(label=label, indices=indices, image=image)
+        self.cropper.randomize(label=label, indices=indices, image=image, img=img)
 
     @LazyTransform.lazy.setter  # type: ignore
     def lazy(self, value: bool) -> None:
@@ -1147,7 +1150,7 @@ class RandCropByLabelClassesd(Randomizable, MapTransform, LazyTransform, MultiSa
 
     def __call__(self, data: Mapping[Hashable, Any], lazy: bool | None = None) -> list[dict[Hashable, torch.Tensor]]:
         d = dict(data)
-        self.randomize(d.get(self.label_key), d.pop(self.indices_key, None), d.get(self.image_key))  # type: ignore
+        self.randomize(d.get(self.label_key), d.pop(self.indices_key, None), d.get(self.image_key), d.get(self.keys[0]))  # type: ignore
 
         # initialize returned list with shallow copy to preserve key ordering
         ret: list = [dict(d) for _ in range(self.cropper.num_samples)]

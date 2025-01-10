@@ -25,7 +25,6 @@ __all__ = ["MixUp", "CutMix", "CutOut", "Mixer"]
 
 
 class Mixer(RandomizableTransform):
-
     def __init__(self, batch_size: int, alpha: float = 1.0) -> None:
         """
         Mixer is a base class providing the basic logic for the mixup-class of

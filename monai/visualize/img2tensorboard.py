@@ -194,7 +194,7 @@ def plot_2d_or_3d_image(
         dataformats = "HW"
         for j, d2 in enumerate(d[:max_channels]):
             d2 = rescale_array(d2, 0, 1)
-            writer.add_image(f"{tag}_{dataformats}_{j}", d2, step, dataformats=dataformats)
+            writer.add_image(f"{tag}_{dataformats}/{j}", d2, step, dataformats=dataformats)
         return
 
     if d.ndim >= 4:

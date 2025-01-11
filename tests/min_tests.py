@@ -213,6 +213,7 @@ def run_testsuit():
         "test_vista3d_utils",
         "test_vista3d_transforms",
         "test_matshow3d",
+        "test_eq_feature",
     ]
     assert sorted(exclude_cases) == sorted(set(exclude_cases)), f"Duplicated items in {exclude_cases}"
 

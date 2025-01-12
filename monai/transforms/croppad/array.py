@@ -56,7 +56,6 @@ from monai.utils import (
     ensure_tuple_rep,
     fall_back_tuple,
     look_up_option,
-    pytorch_after,
 )
 
 __all__ = [
@@ -392,11 +391,7 @@ class Crop(InvertibleTransform, LazyTransform):
                 roi_center_t = convert_to_tensor(data=roi_center, dtype=torch.int16, wrap_sequence=True, device="cpu")
                 roi_size_t = convert_to_tensor(data=roi_size, dtype=torch.int16, wrap_sequence=True, device="cpu")
                 _zeros = torch.zeros_like(roi_center_t)
-                half = (
-                    torch.divide(roi_size_t, 2, rounding_mode="floor")
-                    if pytorch_after(1, 8)
-                    else torch.floor_divide(roi_size_t, 2)
-                )
+                half = torch.divide(roi_size_t, 2, rounding_mode="floor")
                 roi_start_t = torch.maximum(roi_center_t - half, _zeros)
                 roi_end_t = torch.maximum(roi_start_t + roi_size_t, roi_start_t)
             else:

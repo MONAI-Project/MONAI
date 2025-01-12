@@ -18,7 +18,6 @@ import numpy as np
 import torch
 
 from monai.config import KeysCollection
-from monai.networks.utils import pytorch_after
 from monai.transforms import MapTransform
 from monai.utils.misc import ImageMetaKey
 
@@ -74,9 +73,7 @@ class EnsureSameShaped(MapTransform):
                             f", the metadata was not updated {filename}."
                         )
                     d[key] = torch.nn.functional.interpolate(
-                        input=d[key].unsqueeze(0),
-                        size=image_shape,
-                        mode="nearest-exact" if pytorch_after(1, 11) else "nearest",
+                        input=d[key].unsqueeze(0), size=image_shape, mode="nearest-exact"
                     ).squeeze(0)
                 else:
                     raise ValueError(

@@ -13,16 +13,12 @@ jobs:
     strategy:
       matrix:
         environment:
-          - "PT110+CUDA113"
           - "PT113+CUDA118"
           - "PT210+CUDA121"
           - "PT240+CUDA126"
           - "PTLATEST+CUDA126"
         include:
           # https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes
-          - environment: PT110+CUDA113
-            pytorch: "torch==1.10.2 torchvision==0.11.3 --extra-index-url https://download.pytorch.org/whl/cu113"
-            base: "nvcr.io/nvidia/pytorch:21.06-py3"  # CUDA 11.3
           - environment: PT113+CUDA118
             pytorch: "torch==1.13.1 torchvision==0.14.1 --extra-index-url https://download.pytorch.org/whl/cu121"
             base: "nvcr.io/nvidia/pytorch:22.10-py3"  # CUDA 11.8

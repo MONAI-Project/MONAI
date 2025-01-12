@@ -27,7 +27,6 @@ from tests.utils import (
     SkipIfAtLeastPyTorchVersion,
     assert_allclose,
     is_tf32_env,
-    pytorch_after,
 )
 
 TEST_CASE_0 = [{"spatial_size": 15}, (6, 10, 15)]
@@ -71,7 +70,7 @@ class TestResize(NumpyImageTestCase2D):
             ((32, 32), "area", False),
             ((32, 32, 32), "trilinear", True),
             ((256, 256), "bilinear", False),
-            ((256, 256), "nearest-exact" if pytorch_after(1, 11) else "nearest", False),
+            ((256, 256), "nearest-exact", False),
             ((128, 128), "nearest", False),
             ((128, 64), "area", True),  # already in a good shape
         ]

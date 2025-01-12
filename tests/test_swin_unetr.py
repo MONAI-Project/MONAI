@@ -24,21 +24,14 @@ from monai.networks import eval_mode
 from monai.networks.nets.swin_unetr import PatchMerging, PatchMergingV2, SwinUNETR, filter_swinunetr
 from monai.networks.utils import copy_model_state
 from monai.utils import optional_import
-from tests.utils import (
-    assert_allclose,
-    pytorch_after,
-    skip_if_downloading_fails,
-    skip_if_no_cuda,
-    skip_if_quick,
-    testing_data_config,
-)
+from tests.utils import assert_allclose, skip_if_downloading_fails, skip_if_no_cuda, skip_if_quick, testing_data_config
 
 einops, has_einops = optional_import("einops")
 
 TEST_CASE_SWIN_UNETR = []
 case_idx = 0
 test_merging_mode = ["mergingv2", "merging", PatchMerging, PatchMergingV2]
-checkpoint_vals = [True, False] if pytorch_after(1, 11) else [False]
+checkpoint_vals = [True, False]
 for attn_drop_rate in [0.4]:
     for in_channels in [1]:
         for depth in [[2, 1, 1, 1], [1, 2, 1, 1]]:

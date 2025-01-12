@@ -155,7 +155,7 @@ jobs:
         # install the latest pytorch for testing
         # however, "pip install monai*.tar.gz" will build cpp/cuda with an isolated
         # fresh torch installation according to pyproject.toml
-        python -m pip install torch>=1.9 torchvision
+        python -m pip install torch>=1.13.1 torchvision
     - name: Check packages
       run: |
         pip uninstall monai

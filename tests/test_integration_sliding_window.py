@@ -26,7 +26,7 @@ from monai.inferers import sliding_window_inference
 from monai.networks import eval_mode, predict_segmentation
 from monai.networks.nets import UNet
 from monai.transforms import EnsureChannelFirst, SaveImage
-from monai.utils import pytorch_after, set_determinism
+from monai.utils import set_determinism
 from tests.utils import DistTestCase, TimedCall, make_nifti_image, skip_if_quick
 
 
@@ -55,11 +55,8 @@ def run_test(batch_size, img_name, seg_name, output_dir, device="cuda:0"):
             return predict_segmentation(seg_probs)
 
     def save_func(engine):
-        if pytorch_after(1, 9, 1):
-            for m in engine.state.output:
-                saver(m)
-        else:
-            saver(engine.state.output[0])
+        for m in engine.state.output:
+            saver(m)
 
     infer_engine = Engine(_sliding_window_processor)
     infer_engine.add_event_handler(Events.ITERATION_COMPLETED, save_func)

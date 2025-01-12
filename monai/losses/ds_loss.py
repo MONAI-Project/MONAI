@@ -17,8 +17,6 @@ import torch
 import torch.nn.functional as F
 from torch.nn.modules.loss import _Loss
 
-from monai.utils import pytorch_after
-
 
 class DeepSupervisionLoss(_Loss):
     """
@@ -42,7 +40,7 @@ class DeepSupervisionLoss(_Loss):
         self.loss = loss
         self.weight_mode = weight_mode
         self.weights = weights
-        self.interp_mode = "nearest-exact" if pytorch_after(1, 11) else "nearest"
+        self.interp_mode = "nearest-exact"
 
     def get_weights(self, levels: int = 1) -> list[float]:
         """

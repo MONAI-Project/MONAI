@@ -22,21 +22,13 @@ from monai.data.meta_tensor import MetaTensor
 from monai.transforms import ResizeWithPadOrCropd
 from monai.transforms.lazy.functional import apply_pending
 from tests.test_resize_with_pad_or_crop import TESTS_PENDING_MODE
-from tests.utils import TEST_NDARRAYS_ALL, assert_allclose, pytorch_after
+from tests.utils import TEST_NDARRAYS_ALL, assert_allclose
 
 TEST_CASES = [
     [{"keys": "img", "spatial_size": [15, 8, 8], "mode": "constant"}, {"img": np.zeros((3, 8, 8, 4))}, (3, 15, 8, 8)],
     [{"keys": "img", "spatial_size": [15, 4, -1], "mode": "constant"}, {"img": np.zeros((3, 8, 8, 4))}, (3, 15, 4, 4)],
-    [
-        {"keys": "img", "spatial_size": [15, 4, -1], "mode": "reflect" if pytorch_after(1, 11) else "constant"},
-        {"img": np.zeros((3, 8, 8, 4))},
-        (3, 15, 4, 4),
-    ],
-    [
-        {"keys": "img", "spatial_size": [-1, -1, -1], "mode": "reflect" if pytorch_after(1, 11) else "constant"},
-        {"img": np.zeros((3, 8, 8, 4))},
-        (3, 8, 8, 4),
-    ],
+    [{"keys": "img", "spatial_size": [15, 4, -1], "mode": "reflect"}, {"img": np.zeros((3, 8, 8, 4))}, (3, 15, 4, 4)],
+    [{"keys": "img", "spatial_size": [-1, -1, -1], "mode": "reflect"}, {"img": np.zeros((3, 8, 8, 4))}, (3, 8, 8, 4)],
     [
         {"keys": "img", "spatial_size": [15, 4, 8], "mode": "constant", "method": "end", "constant_values": 1},
         {"img": np.zeros((3, 8, 8, 4))},

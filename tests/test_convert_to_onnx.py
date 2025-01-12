@@ -20,7 +20,6 @@ from parameterized import parameterized
 
 from monai.networks import convert_to_onnx
 from monai.networks.nets import SegResNet, UNet
-from monai.utils.module import pytorch_after
 from tests.utils import SkipIfBeforePyTorchVersion, SkipIfNoModule, optional_import, skip_if_quick
 
 if torch.cuda.is_available():
@@ -53,28 +52,12 @@ class TestConvertToOnnx(unittest.TestCase):
         model = UNet(
             spatial_dims=2, in_channels=1, out_channels=3, channels=(16, 32, 64), strides=(2, 2), num_res_units=0
         )
-        if pytorch_after(1, 10) or use_trace:
+        if use_trace:
             onnx_model = convert_to_onnx(
                 model=model,
                 inputs=[torch.randn((16, 1, 32, 32), requires_grad=False)],
                 input_names=["x"],
                 output_names=["y"],
-                verify=True,
-                device=device,
-                use_ort=use_ort,
-                use_trace=use_trace,
-                rtol=rtol,
-                atol=atol,
-            )
-        else:
-            # https://github.com/pytorch/pytorch/blob/release/1.9/torch/onnx/__init__.py#L182
-            # example_outputs is required in scripting mode before PyTorch 3.10
-            onnx_model = convert_to_onnx(
-                model=model,
-                inputs=[torch.randn((16, 1, 32, 32), requires_grad=False)],
-                input_names=["x"],
-                output_names=["y"],
-                example_outputs=[torch.randn((16, 3, 32, 32), requires_grad=False)],
                 verify=True,
                 device=device,
                 use_ort=use_ort,

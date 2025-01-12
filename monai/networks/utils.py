@@ -31,7 +31,7 @@ import torch.nn as nn
 from monai.apps.utils import get_logger
 from monai.config import PathLike
 from monai.utils.misc import ensure_tuple, save_obj, set_determinism
-from monai.utils.module import look_up_option, optional_import, pytorch_after
+from monai.utils.module import look_up_option, optional_import
 from monai.utils.type_conversion import convert_to_dst_type, convert_to_tensor
 
 onnx, _ = optional_import("onnx")
@@ -676,15 +676,6 @@ def convert_to_onnx(
                 torch_versioned_kwargs["verify"] = verify
                 verify = False
         else:
-            if not pytorch_after(1, 10):
-                if "example_outputs" not in kwargs:
-                    # https://github.com/pytorch/pytorch/blob/release/1.9/torch/onnx/__init__.py#L182
-                    raise TypeError(
-                        "example_outputs is required in scripting mode before PyTorch 1.10."
-                        "Please provide example outputs or use trace mode to export onnx model."
-                    )
-                torch_versioned_kwargs["example_outputs"] = kwargs["example_outputs"]
-                del kwargs["example_outputs"]
             mode_to_export = torch.jit.script(model, **kwargs)
 
         if torch.is_tensor(inputs) or isinstance(inputs, dict):
@@ -746,8 +737,7 @@ def convert_to_onnx(
         # compare onnx/ort and PyTorch results
         for r1, r2 in zip(torch_out, onnx_out):
             if isinstance(r1, torch.Tensor):
-                assert_fn = torch.testing.assert_close if pytorch_after(1, 11) else torch.testing.assert_allclose
-                assert_fn(r1.cpu(), convert_to_tensor(r2, dtype=r1.dtype), rtol=rtol, atol=atol)  # type: ignore
+                torch.testing.assert_close(r1.cpu(), convert_to_tensor(r2, dtype=r1.dtype), rtol=rtol, atol=atol)  # type: ignore
 
     return onnx_model
 
@@ -817,8 +807,7 @@ def convert_to_torchscript(
         # compare TorchScript and PyTorch results
         for r1, r2 in zip(torch_out, torchscript_out):
             if isinstance(r1, torch.Tensor) or isinstance(r2, torch.Tensor):
-                assert_fn = torch.testing.assert_close if pytorch_after(1, 11) else torch.testing.assert_allclose
-                assert_fn(r1, r2, rtol=rtol, atol=atol)  # type: ignore
+                torch.testing.assert_close(r1, r2, rtol=rtol, atol=atol)  # type: ignore
 
     return script_module
 
@@ -1031,8 +1020,7 @@ def convert_to_trt(
         # compare TorchScript and PyTorch results
         for r1, r2 in zip(torch_out, trt_out):
             if isinstance(r1, torch.Tensor) or isinstance(r2, torch.Tensor):
-                assert_fn = torch.testing.assert_close if pytorch_after(1, 11) else torch.testing.assert_allclose
-                assert_fn(r1, r2, rtol=rtol, atol=atol)  # type: ignore
+                torch.testing.assert_close(r1, r2, rtol=rtol, atol=atol)  # type: ignore
 
     return trt_model
 

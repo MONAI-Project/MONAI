@@ -46,6 +46,7 @@ from .enums import (
     MetaKeys,
     Method,
     MetricReduction,
+    MultiOutput,
     NdimageMode,
     NumpyPadMode,
     OrderingTransformations,

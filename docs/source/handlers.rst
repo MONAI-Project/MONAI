@@ -77,6 +77,12 @@ Panoptic Quality metrics handler
     :members:
 
 
+:math:`R^{2}` score
+-------------------
+.. autoclass:: R2Score
+    :members:
+
+
 Mean squared error metrics handler
 ----------------------------------
 .. autoclass:: MeanSquaredError

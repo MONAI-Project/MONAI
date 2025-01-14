@@ -80,6 +80,13 @@ Metrics
 .. autoclass:: ROCAUCMetric
     :members:
 
+`Average Precision`
+--------------------------
+.. autofunction:: compute_average_precision
+
+.. autoclass:: AveragePrecisionMetric
+    :members:
+
 `Confusion matrix`
 ------------------
 .. autofunction:: get_confusion_matrix

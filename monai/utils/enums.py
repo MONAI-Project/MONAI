@@ -213,7 +213,8 @@ class GridSamplePadMode(StrEnum):
 
 class Average(StrEnum):
     """
-    See also: :py:class:`monai.metrics.rocauc.compute_roc_auc`
+    See also: :py:class:`monai.metrics.rocauc.compute_roc_auc` or
+    :py:class:`monai.metrics.average_precision.compute_average_precision`
     """
 
     MACRO = "macro"

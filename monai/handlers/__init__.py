@@ -29,6 +29,8 @@ from .metric_logger import MetricLogger, MetricLoggerKeys
 from .metrics_reloaded_handler import MetricsReloadedBinaryHandler, MetricsReloadedCategoricalHandler
 from .metrics_saver import MetricsSaver
 from .mlflow_handler import MLFlowHandler
+from .model_calibrator import ModelCalibrater
+from .model_quantizer import ModelQuantizer
 from .nvtx_handlers import MarkHandler, RangeHandler, RangePopHandler, RangePushHandler
 from .panoptic_quality import PanopticQuality
 from .parameter_scheduler import ParamSchedulerHandler

@@ -62,3 +62,4 @@ pyamg>=5.0.0
 git+https://github.com/facebookresearch/segment-anything.git@6fdee8f2727f4506cfbbe553e23b895e27956588
 onnx_graphsurgeon
 polygraphy
+nvidia-modelopt>=0.19.0

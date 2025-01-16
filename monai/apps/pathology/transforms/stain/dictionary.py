@@ -17,6 +17,7 @@ Class names are ended with 'd' to denote dictionary-based transforms.
 
 from __future__ import annotations
 
+import numbers
 from collections.abc import Hashable, Mapping
 
 import numpy as np
@@ -24,7 +25,33 @@ import numpy as np
 from monai.config import KeysCollection
 from monai.transforms.transform import MapTransform
 
-from .array import ExtractHEStains, NormalizeHEStains
+from .array import ExtractHEStains, HEDJitter, NormalizeHEStains
+
+
+class HEDJitterd(MapTransform):
+
+    """Dictionary-based wrapper of :py:class:`monai.apps.pathology.transforms.HEDJitter`.
+    Class to randomly perturbe HED color space values of image using stain deconvolution.
+
+    Args:
+        keys: keys of the corresponding items to be transformed.
+            See also: :py:class:`monai.transforms.compose.MapTransform`
+        theta: jitter range factor
+
+        allow_missing_keys: don't raise exception if key is missing.
+
+    """
+
+    def __init__(self, keys: KeysCollection, theta: float = 0.0, allow_missing_keys: bool = False) -> None:
+        super().__init__(keys, allow_missing_keys)
+        assert isinstance(theta, numbers.Number), "theta should be a single number."
+        self.hedjitter = HEDJitter(theta=theta)
+
+    def __call__(self, data: Mapping[Hashable, np.ndarray]) -> dict[Hashable, np.ndarray]:
+        d = dict(data)
+        for key in self.key_iterator(d):
+            d[key] = self.hedjitter(d[key])
+        return d
 
 
 class ExtractHEStainsd(MapTransform):
@@ -111,3 +138,4 @@ class NormalizeHEStainsd(MapTransform):
 
 ExtractHEStainsDict = ExtractHEStainsD = ExtractHEStainsd
 NormalizeHEStainsDict = NormalizeHEStainsD = NormalizeHEStainsd
+HEDJitterDict = HEDJitterD = HEDJitterd

@@ -1133,6 +1133,72 @@ def generate_spatial_bounding_box(
     return box_start, box_end
 
 
+@deprecated_arg_default("allow_smaller", old_default=True, new_default=False, since="1.2", replaced="1.5")
+def generate_spatial_bounding_boxes(
+    img: NdarrayOrTensor,
+    select_fn: Callable = is_positive,
+    channel_indices: IndexSelection | None = None,
+    margin: Sequence[int] | int = 0,
+    allow_smaller: bool = True,
+    connectivity: int = 2,
+) -> tuple[list[int], list[int]]:
+    """
+    Generate the spatial bounding boxes of foreground in the image with start-end positions (inclusive).
+    Users can define arbitrary function to select expected foreground from the whole image or specified channels.
+    And it can also add margin to every dim of the bounding boxes.
+    The output format of the coordinates is:
+        [[1st_bb_1st_spatial_dim_start, ..., 1st_bb_Nth_spatial_dim_start], ...,
+        [Nth_bb_1st_spatial_dim_start, ..., Nth_bb_Nth_spatial_dim_start]]
+
+        [[1st_bb_1st_spatial_dim_end, ..., 1st_bb_Nth_spatial_dim_end], ...,
+        [Nth_bb_1st_spatial_dim_end, ..., Nth_bb_Nth_spatial_dim_end]]
+
+    This function returns ([], []) if there's no positive intensity.
+    Args:
+        img: a "channel-first" image of shape (C, spatial_dim1[, spatial_dim2, ...]) to generate bounding box from.
+        select_fn: function to select expected foreground, default is to select values > 0.
+        channel_indices: if defined, select foreground only on the specified channels
+            of image. if None, select foreground on the whole image.
+        margin: add margin value to spatial dims of the bounding box, if only 1 value provided, use it for all dims.
+        allow_smaller: when computing box size with `margin`, whether to allow the image edges to be smaller than the
+                final box edges. If `True`, the bounding boxes edges are aligned with the input image edges, if `False`,
+                the bounding boxes edges are aligned with the final box edges. Default to `True`.
+        connectivity: Maximum number of orthogonal hops to consider a pixel/voxel as a neighbor.
+                Accepted values are ranging from 1 to input.ndim. If None, a full connectivity of input.ndim is used.
+                see https://scikit-image.org/docs/stable/api/skimage.measure.html#skimage.measure.label
+    """
+
+    skimage, has_cucim = optional_import("cucim.skimage")
+    use_cp = has_cp and has_cucim and isinstance(img, torch.Tensor) and img.device != torch.device("cpu")
+    if use_cp:
+        img_ = convert_to_cupy(img.short())  # type: ignore
+        label = skimage.measure.label
+    else:
+        if not has_measure:
+            raise RuntimeError("Skimage.measure required.")
+        img_, *_ = convert_data_type(img, np.ndarray)
+        label = measure.label
+
+    data = select_fn(img_).any(0)
+    features, num_features = label(data, connectivity=connectivity, return_num=True)
+
+    boxes_start = []
+    boxes_end = []
+
+    for n in range(num_features):
+        result = generate_spatial_bounding_box(
+            img=features[None],
+            select_fn=lambda x: x == (n + 1),
+            margin=margin,
+            channel_indices=channel_indices,
+            allow_smaller=allow_smaller,
+        )
+        boxes_start.append(result[0])
+        boxes_end.append(result[1])
+
+    return boxes_start, boxes_end
+
+
 def get_largest_connected_component_mask(
     img: NdarrayTensor, connectivity: int | None = None, num_components: int = 1
 ) -> NdarrayTensor:

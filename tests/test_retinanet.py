@@ -22,6 +22,7 @@ from monai.networks.nets import resnet10, resnet18, resnet34, resnet50, resnet10
 from monai.utils import ensure_tuple, optional_import
 from tests.utils import SkipIfBeforePyTorchVersion, skip_if_quick, test_onnx_save, test_script_save
 
+_, has_onnx = optional_import("onnx")
 _, has_torchvision = optional_import("torchvision")
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -174,6 +175,7 @@ class TestRetinaNet(unittest.TestCase):
             test_script_save(net, data)
 
     @parameterized.expand(TEST_CASES_TS)
+    @unittest.skipUnless(has_onnx, "Requires onnx")
     def test_onnx(self, model, input_param, input_shape):
         try:
             idx = int(self.id().split("test_onnx_")[-1])

@@ -242,16 +242,17 @@ class TestLoadImage(unittest.TestCase):
 
     @parameterized.expand([TEST_CASE_6, TEST_CASE_7, TEST_CASE_8, TEST_CASE_8_1, TEST_CASE_9])
     def test_itk_reader(self, input_param, filenames, expected_shape):
-        test_image = np.random.rand(128, 128, 128)
+        test_image = torch.randint(0, 256, (128, 128, 128), dtype=torch.uint8).numpy()
+        print("Test image value range:", test_image.min(), test_image.max())
         with tempfile.TemporaryDirectory() as tempdir:
             for i, name in enumerate(filenames):
                 filenames[i] = os.path.join(tempdir, name)
-                itk_np_view = itk.image_view_from_array(test_image)
-                itk.imwrite(itk_np_view, filenames[i])
+                nib.save(nib.Nifti1Image(test_image, np.eye(4)), filenames[i])
             result = LoadImage(image_only=True, **input_param)(filenames)
-            self.assertEqual(result.meta["filename_or_obj"], os.path.join(tempdir, "test_image.nii.gz"))
-            diag = torch.as_tensor(np.diag([-1, -1, 1, 1]))
-            np.testing.assert_allclose(result.affine, diag)
+            ext = "".join(Path(name).suffixes)
+            self.assertEqual(result.meta["filename_or_obj"], os.path.join(tempdir, "test_image" + ext))
+            self.assertEqual(result.meta["space"], "RAS")
+            assert_allclose(result.affine, torch.eye(4))
             self.assertTupleEqual(result.shape, expected_shape)
 
     @parameterized.expand([TEST_CASE_10, TEST_CASE_11, TEST_CASE_12, TEST_CASE_19, TEST_CASE_20, TEST_CASE_21])

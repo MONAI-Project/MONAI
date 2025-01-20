@@ -161,6 +161,9 @@ __all__ = [
     "SqueezeDimD",
     "SqueezeDimDict",
     "SqueezeDimd",
+    "SubtractItemsD",
+    "SubtractItemsDict",
+    "SubtractItemsd",
     "ToCupyD",
     "ToCupyDict",
     "ToCupyd",
@@ -954,6 +957,57 @@ class CopyItemsd(MapTransform):
                     raise KeyError(f"Key {new_key} already exists in data.")
                 val = d[key]
                 d[new_key] = MetaObj.copy_items(val) if isinstance(val, (torch.Tensor, np.ndarray)) else deepcopy(val)
+        return d
+
+
+class SubtractItemsd(MapTransform):
+    """
+    Subtract specified items from data dictionary elementwise.
+    Expect all the items are numpy array or PyTorch Tensor or MetaTensor.
+    Return the first input's meta information when items are MetaTensor.
+    """
+
+    backend = [TransformBackends.TORCH, TransformBackends.NUMPY]
+
+    def __init__(self, keys: KeysCollection, name: str, allow_missing_keys: bool = False) -> None:
+        """
+        Args:
+            keys: keys of the corresponding items to be subtracted.
+                See also: :py:class:`monai.transforms.compose.MapTransform`
+            name: the name corresponding to the key to store the resulting data.
+            allow_missing_keys: don't raise exception if key is missing.
+        """
+        super().__init__(keys, allow_missing_keys)
+        self.name = name
+
+    def __call__(self, data: Mapping[Hashable, NdarrayOrTensor]) -> dict[Hashable, NdarrayOrTensor]:
+        """
+        Raises:
+            TypeError: When items in ``data`` differ in type.
+            TypeError: When the item type is not in ``Union[numpy.ndarray, torch.Tensor, MetaTensor]``.
+
+        """
+        d = dict(data)
+        output = []
+        data_type = None
+        for key in self.key_iterator(d):
+            if data_type is None:
+                data_type = type(d[key])
+            elif not isinstance(d[key], data_type):
+                raise TypeError("All items in data must have the same type.")
+            output.append(d[key])
+
+        if len(output) == 0:
+            return d
+
+        if data_type is np.ndarray:
+            d[self.name] = np.subtract(output[0], output[1])
+        elif issubclass(data_type, torch.Tensor):  # type: ignore
+            d[self.name] = torch.sub(output[0], output[1])  # type: ignore
+        else:
+            raise TypeError(
+                f"Unsupported data type: {data_type}, available options are (numpy.ndarray, torch.Tensor, MetaTensor)."
+            )
         return d
 
 
@@ -1927,6 +1981,7 @@ SqueezeDimD = SqueezeDimDict = SqueezeDimd
 DataStatsD = DataStatsDict = DataStatsd
 SimulateDelayD = SimulateDelayDict = SimulateDelayd
 CopyItemsD = CopyItemsDict = CopyItemsd
+SubtractItemsD = SubtractItemsDict = SubtractItemsd
 ConcatItemsD = ConcatItemsDict = ConcatItemsd
 LambdaD = LambdaDict = Lambdad
 LabelToMaskD = LabelToMaskDict = LabelToMaskd

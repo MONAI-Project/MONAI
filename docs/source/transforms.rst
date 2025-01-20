@@ -2199,6 +2199,12 @@ Utility (Dict)
     :members:
     :special-members: __call__
 
+`SubtractItemsd`
+""""""""""""""""
+.. autoclass:: SubtractItemsd
+    :members:
+    :special-members: __call__
+
 `ConcatItemsd`
 """"""""""""""
 .. autoclass:: ConcatItemsd

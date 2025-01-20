@@ -42,7 +42,9 @@ class TestAllImport(unittest.TestCase):
         """monai subclasses of MapTransforms must have alias names ending with 'd', 'D', 'Dict'"""
         to_exclude = {"MapTransform"}  # except for these transforms
         to_exclude_docs = {"Decollate", "Ensemble", "Invert", "SaveClassification", "RandTorchVision", "RandCrop"}
-        to_exclude_docs.update({"DeleteItems", "SelectItems", "FlattenSubKeys", "CopyItems", "ConcatItems"})
+        to_exclude_docs.update(
+            {"DeleteItems", "SelectItems", "FlattenSubKeys", "CopyItems", "ConcatItems", "SubtractItems"}
+        )
         to_exclude_docs.update({"ToMetaTensor", "FromMetaTensor"})
         xforms = {
             name: obj

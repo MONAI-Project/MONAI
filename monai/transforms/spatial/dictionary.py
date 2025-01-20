@@ -24,11 +24,13 @@ from typing import Any, cast
 import numpy as np
 import torch
 
+import monai.transforms as transforms
 from monai.config import DtypeLike, KeysCollection, SequenceStr
 from monai.config.type_definitions import NdarrayOrTensor
 from monai.data.box_utils import BoxMode, StandardMode
 from monai.data.meta_obj import get_track_meta
 from monai.data.meta_tensor import MetaTensor
+from monai.data.utils import is_supported_format
 from monai.networks.layers.simplelayers import GaussianFilter
 from monai.transforms.croppad.array import CenterSpatialCrop
 from monai.transforms.inverse import InvertibleTransform
@@ -520,6 +522,11 @@ class Spacingd(MapTransform, InvertibleTransform, LazyTransform):
                 output_spatial_shape=output_shape_k if should_match else None,
                 lazy=lazy_,
             )
+            if isinstance(d[key], MetaTensor) and f"{key}_meta_dict" in d:
+                if "filename_or_obj" in d[key].meta and is_supported_format(
+                    d[key].meta["filename_or_obj"], ["nii", "nii.gz"]
+                ):
+                    d = transforms.sync_meta_info(key, d)
             if output_shape_k is None:
                 output_shape_k = d[key].peek_pending_shape() if isinstance(d[key], MetaTensor) else d[key].shape[1:]
         return d

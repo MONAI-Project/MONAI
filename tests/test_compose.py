@@ -141,6 +141,20 @@ class TestCompose(unittest.TestCase):
         self.assertEqual(mt.Compose(transforms, unpack_items=True)(data), expected)
         self.assertEqual(execute_compose(data, transforms, unpack_items=True), expected)
 
+    def test_list_non_dict_compose_with_unpack_map_2(self):
+
+        def a(i, i2):
+            return i + "a", i2 + "a2"
+
+        def b(i, i2):
+            return i + "b", i2 + "b2"
+
+        transforms = [a, b, a, b]
+        data = [[("", ""), ("", "")], [("t", "t"), ("t", "t")]]
+        expected = [[("abab", "a2b2a2b2"), ("abab", "a2b2a2b2")], [("tabab", "ta2b2a2b2"), ("tabab", "ta2b2a2b2")]]
+        self.assertEqual(mt.Compose(transforms, map_items=2, unpack_items=True)(data), expected)
+        self.assertEqual(execute_compose(data, transforms, map_items=2, unpack_items=True), expected)
+
     def test_list_dict_compose_no_map(self):
 
         def a(d):  # transform to handle dict data

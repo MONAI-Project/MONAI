@@ -50,7 +50,6 @@ from monai.utils import (
     issequenceiterable,
     look_up_option,
     optional_import,
-    pytorch_after,
 )
 
 pd, _ = optional_import("pandas")
@@ -450,12 +449,9 @@ def collate_meta_tensor_fn(batch, *, collate_fn_map=None):
     Collate a sequence of meta tensor into a single batched metatensor. This is called by `collage_meta_tensor`
     and so should not be used as a collate function directly in dataloaders.
     """
-    if pytorch_after(1, 13):
-        from torch.utils.data._utils.collate import collate_tensor_fn  # imported here for pylint/mypy issues
+    from torch.utils.data._utils.collate import collate_tensor_fn  # imported here for pylint/mypy issues
 
-        collated = collate_tensor_fn(batch)
-    else:
-        collated = default_collate(batch)
+    collated = collate_tensor_fn(batch)
 
     meta_dicts = [i.meta or TraceKeys.NONE for i in batch]
     common_ = set.intersection(*[set(d.keys()) for d in meta_dicts if isinstance(d, dict)])
@@ -494,18 +490,15 @@ def list_data_collate(batch: Sequence):
         Need to use this collate if apply some transforms that can generate batch data.
 
     """
+    from torch.utils.data._utils.collate import default_collate_fn_map
 
-    if pytorch_after(1, 13):
-        # needs to go here to avoid circular import
-        from torch.utils.data._utils.collate import default_collate_fn_map
+    from monai.data.meta_tensor import MetaTensor
 
-        from monai.data.meta_tensor import MetaTensor
-
-        default_collate_fn_map.update({MetaTensor: collate_meta_tensor_fn})
+    default_collate_fn_map.update({MetaTensor: collate_meta_tensor_fn})
     elem = batch[0]
     data = [i for k in batch for i in k] if isinstance(elem, list) else batch
     key = None
-    collate_fn = default_collate if pytorch_after(1, 13) else collate_meta_tensor
+    collate_fn = default_collate
     try:
         if config.USE_META_DICT:
             data = pickle_operations(data)  # bc 0.9.0

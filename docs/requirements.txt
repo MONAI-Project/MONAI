@@ -1,5 +1,5 @@
--f https://download.pytorch.org/whl/cpu/torch-1.12.1%2Bcpu-cp37-cp37m-linux_x86_64.whl
-torch>=1.9
+-f https://download.pytorch.org/whl/cpu/torch-1.13.1%2Bcpu-cp39-cp39-linux_x86_64.whl
+torch>=1.13.1
 pytorch-ignite==0.4.11
 numpy>=1.20
 itk>=5.2

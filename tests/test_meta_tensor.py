@@ -17,7 +17,6 @@ import random
 import string
 import tempfile
 import unittest
-import warnings
 from copy import deepcopy
 from multiprocessing.reduction import ForkingPickler
 
@@ -33,7 +32,6 @@ from monai.data.meta_tensor import MetaTensor
 from monai.data.utils import decollate_batch, list_data_collate
 from monai.transforms import BorderPadd, Compose, DivisiblePadd, FromMetaTensord, ToMetaTensord
 from monai.utils.enums import PostFix
-from monai.utils.module import pytorch_after
 from tests.utils import TEST_DEVICES, SkipIfBeforePyTorchVersion, assert_allclose, skip_if_no_cuda
 
 DTYPES = [[torch.float32], [torch.float64], [torch.float16], [torch.int64], [torch.int32], [None]]
@@ -241,14 +239,6 @@ class TestMetaTensor(unittest.TestCase):
             traced_fn = torch.jit.load(fname)
             out = traced_fn(im)
             self.assertIsInstance(out, torch.Tensor)
-            if not isinstance(out, MetaTensor) and not pytorch_after(1, 9, 1):
-                warnings.warn(
-                    "When calling `nn.Module(MetaTensor) on a module traced with "
-                    "`torch.jit.trace`, your version of pytorch returns a "
-                    "`torch.Tensor` instead of a `MetaTensor`. Consider upgrading "
-                    "your pytorch version if this is important to you."
-                )
-                im_conv = im_conv.as_tensor()
         self.check(out, im_conv, ids=False)
 
     def test_pickling(self):
@@ -257,9 +247,6 @@ class TestMetaTensor(unittest.TestCase):
             fname = os.path.join(tmp_dir, "im.pt")
             torch.save(m, fname)
             m2 = torch.load(fname)
-            if not isinstance(m2, MetaTensor) and not pytorch_after(1, 8, 1):
-                warnings.warn("Old version of pytorch. pickling converts `MetaTensor` to `torch.Tensor`.")
-                m = m.as_tensor()
         self.check(m2, m, ids=False)
 
     @skip_if_no_cuda
@@ -556,11 +543,10 @@ class TestMetaTensor(unittest.TestCase):
         )
         assert_allclose(np.argwhere(c == 1.0).astype(int).tolist(), [[0]])
         assert_allclose(np.concatenate([c, c]), np.asarray([1.0, 2.0, 3.0, 1.0, 2.0, 3.0]))
-        if pytorch_after(1, 8, 1):
-            assert_allclose(c > np.asarray([1.0, 1.0, 1.0]), np.asarray([False, True, True]))
-            assert_allclose(
-                c > torch.as_tensor([1.0, 1.0, 1.0], device=device), torch.as_tensor([False, True, True], device=device)
-            )
+        assert_allclose(c > np.asarray([1.0, 1.0, 1.0]), np.asarray([False, True, True]))
+        assert_allclose(
+            c > torch.as_tensor([1.0, 1.0, 1.0], device=device), torch.as_tensor([False, True, True], device=device)
+        )
 
     @parameterized.expand(TESTS)
     def test_numpy(self, device=None, dtype=None):

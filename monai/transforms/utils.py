@@ -68,7 +68,6 @@ from monai.utils import (
     look_up_option,
     min_version,
     optional_import,
-    pytorch_after,
     unsqueeze_left,
     unsqueeze_right,
 )
@@ -2255,7 +2254,7 @@ def _to_torch_resample_interp_mode(interp_mode):
     if ret is not None:
         return ret
     _mapping = {
-        SplineMode.ZERO: InterpolateMode.NEAREST_EXACT if pytorch_after(1, 11) else InterpolateMode.NEAREST,
+        SplineMode.ZERO: InterpolateMode.NEAREST_EXACT,
         SplineMode.ONE: InterpolateMode.LINEAR,
         SplineMode.THREE: InterpolateMode.BICUBIC,
     }

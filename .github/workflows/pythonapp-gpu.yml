@@ -22,20 +22,10 @@ jobs:
     strategy:
       matrix:
         environment:
-          - "PT19+CUDA114DOCKER"
-          - "PT110+CUDA111"
-          - "PT112+CUDA118DOCKER"
           - "PT113+CUDA116"
           - "PT210+CUDA121DOCKER"
         include:
           # https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes
-          - environment: PT110+CUDA111
-            pytorch: "torch==1.10.2 torchvision==0.11.3 --extra-index-url https://download.pytorch.org/whl/cu111"
-            base: "nvcr.io/nvidia/cuda:11.1.1-devel-ubuntu18.04"
-          - environment: PT112+CUDA118DOCKER
-            # 22.09: 1.13.0a0+d0d6b1f
-            pytorch: "-h"  # we explicitly set pytorch to -h to avoid pip install error
-            base: "nvcr.io/nvidia/pytorch:22.09-py3"
           - environment: PT113+CUDA116
             pytorch: "torch==1.13.1 torchvision==0.14.1"
             base: "nvcr.io/nvidia/cuda:11.6.1-devel-ubuntu18.04"
@@ -59,8 +49,7 @@ jobs:
         apt-get update
         apt-get install -y wget
 
-        if [ ${{ matrix.environment }} = "PT110+CUDA111" ] || \
-          [ ${{ matrix.environment }} = "PT113+CUDA116" ]
+        if [ ${{ matrix.environment }} = "PT113+CUDA116" ]
         then
         PYVER=3.9 PYSFX=3 DISTUTILS=python3-distutils && \
         apt-get update && apt-get install -y --no-install-recommends \
@@ -94,9 +83,6 @@ jobs:
         python get-pip.py && \
         rm get-pip.py;
         fi
-    - if: matrix.environment == 'PT19+CUDA114DOCKER'
-      name: Optional Cupy dependency (cuda114)
-      run: echo "cupy-cuda114" >> requirements-dev.txt
     - name: Install dependencies
       if: github.event.pull_request.merged != true
       run: |

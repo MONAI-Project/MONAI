@@ -22,7 +22,7 @@ import torch.nn.functional as F
 
 from monai.config import NdarrayTensor
 from monai.transforms import ScaleIntensity
-from monai.utils import ensure_tuple, pytorch_after
+from monai.utils import ensure_tuple
 from monai.visualize.visualizer import default_upsampler
 
 __all__ = ["CAM", "GradCAM", "GradCAMpp", "ModelWithHooks", "default_normalizer"]
@@ -83,13 +83,10 @@ class ModelWithHooks:
                 continue
             _registered.append(name)
             if self.register_backward:
-                if pytorch_after(1, 8):
-                    if "inplace" in mod.__dict__ and mod.__dict__["inplace"]:
-                        # inplace=True causes errors for register_full_backward_hook
-                        mod.__dict__["inplace"] = False
-                    mod.register_full_backward_hook(self.backward_hook(name))
-                else:
-                    mod.register_backward_hook(self.backward_hook(name))
+                if "inplace" in mod.__dict__ and mod.__dict__["inplace"]:
+                    # inplace=True causes errors for register_full_backward_hook
+                    mod.__dict__["inplace"] = False
+                mod.register_full_backward_hook(self.backward_hook(name))
             if self.register_forward:
                 mod.register_forward_hook(self.forward_hook(name))
         if self.target_layers and (len(_registered) != len(self.target_layers)):

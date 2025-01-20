@@ -16,7 +16,7 @@ import sys
 import time
 import unittest
 
-from tests.utils import TimedCall
+from tests.util import TimedCall
 
 
 @TimedCall(seconds=20 if sys.platform == "linux" else 60, force_quit=False)
@@ -50,7 +50,6 @@ def case_1_seconds_bad(arg=None):
 
 
 class TestTimedCall(unittest.TestCase):
-
     def test_good_call(self):
         output = case_1_seconds()
         self.assertEqual(output, "good")

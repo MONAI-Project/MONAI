@@ -19,7 +19,7 @@ from parameterized import parameterized
 
 from monai.transforms import TorchIOd
 from monai.utils import optional_import
-from tests.utils import assert_allclose
+from tests.util import assert_allclose
 
 _, has_torchio = optional_import("torchio")
 
@@ -36,7 +36,6 @@ TEST_PARAMS = [
 
 @skipUnless(has_torchio, "Requires torchio")
 class TestTorchIOd(unittest.TestCase):
-
     @parameterized.expand(TEST_PARAMS)
     def test_value(self, input_param, input_data, expected_value):
         result = TorchIOd(**input_param)(input_data)

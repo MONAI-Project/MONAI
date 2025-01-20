@@ -13,11 +13,10 @@ from __future__ import annotations
 
 import unittest
 
-from tests.utils import DistCall, DistTestCase
+from tests.util import DistCall, DistTestCase
 
 
 class DistributedCallTest(DistTestCase):
-
     def test_constructor(self):
         with self.assertRaises(ValueError):
             DistCall(nnodes=1, nproc_per_node=0)

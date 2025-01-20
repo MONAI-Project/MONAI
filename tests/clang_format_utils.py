@@ -18,6 +18,7 @@ import os
 import platform
 import stat
 import sys
+from pathlib import Path
 
 from monai.apps.utils import download_url
 
@@ -25,7 +26,7 @@ from monai.apps.utils import download_url
 HOST_PLATFORM = platform.system()
 
 # MONAI directory root, derived from the location of this file.
-MONAI_ROOT = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+MONAI_ROOT = Path(__file__).resolve().parent.parent
 
 # This dictionary maps each platform to the S3 object URL for its clang-format binary.
 PLATFORM_TO_CF_URL = {

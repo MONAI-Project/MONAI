@@ -14,11 +14,10 @@ from __future__ import annotations
 import os
 import unittest
 
-from tests.utils import SkipIfAtLeastPyTorchVersion, skip_if_no_cuda
+from tests.util import SkipIfAtLeastPyTorchVersion, skip_if_no_cuda
 
 
 class TestVisibleDevices(unittest.TestCase):
-
     @staticmethod
     def run_process_and_get_exit_code(code_to_execute):
         value = os.system(code_to_execute)

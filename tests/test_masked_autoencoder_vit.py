@@ -18,7 +18,7 @@ from parameterized import parameterized
 
 from monai.networks import eval_mode
 from monai.networks.nets.masked_autoencoder_vit import MaskedAutoEncoderViT
-from tests.utils import skip_if_quick
+from tests.util import skip_if_quick
 
 TEST_CASE_MaskedAutoEncoderViT = []
 for masking_ratio in [0.5]:
@@ -81,7 +81,6 @@ TEST_CASE_ill_args = [
 
 @skip_if_quick
 class TestMaskedAutoencoderViT(unittest.TestCase):
-
     @parameterized.expand(TEST_CASE_MaskedAutoEncoderViT)
     def test_shape(self, input_param, input_shape, expected_shape):
         net = MaskedAutoEncoderViT(**input_param)

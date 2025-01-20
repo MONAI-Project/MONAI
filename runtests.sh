@@ -740,7 +740,7 @@ if [ $doNetTests = true ]
 then
     set +e  # disable exit on failure so that diagnostics can be given on failure
     echo "${separator}${blue}integration${noColor}"
-    for i in tests/*integration_*.py
+    for i in tests/integration/*.py
     do
         echo "$i"
         ${cmdPrefix}${cmd} "$i"

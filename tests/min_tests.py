@@ -11,10 +11,10 @@
 
 from __future__ import annotations
 
-import glob
 import os
 import sys
 import unittest
+from pathlib import Path
 
 
 def run_testsuit():
@@ -216,17 +216,20 @@ def run_testsuit():
     ]
     assert sorted(exclude_cases) == sorted(set(exclude_cases)), f"Duplicated items in {exclude_cases}"
 
-    files = glob.glob(os.path.join(os.path.dirname(__file__), "test_*.py"))
+    files = [f.relative_to(Path(__file__).parent.parent) for f in Path(__file__).parent.rglob("test_*.py")]
+    files = [str(f).replace(os.sep, ".").replace(".py", "") for f in files]
 
     cases = []
-    for case in files:
-        test_module = os.path.basename(case)[:-3]
-        if test_module in exclude_cases:
-            exclude_cases.remove(test_module)
-            print(f"skipping tests.{test_module}.")
+    for test_module in files:
+        test_case = test_module.split(".")[-1]
+        if test_case in exclude_cases:
+            exclude_cases.remove(test_case)
+            print(f"skipping {test_module}")
         else:
-            cases.append(f"tests.{test_module}")
-    assert not exclude_cases, f"items in exclude_cases not used: {exclude_cases}."
+            print(f"adding {test_module}")
+            cases.append(test_module)
+    exclude_cases = [str(list(Path(__file__).parent.rglob(f"*{et}*"))[0]) for et in exclude_cases]
+    assert not exclude_cases, f"items in exclude_cases not used: {' '.join(exclude_cases)}"
     test_suite = unittest.TestLoader().loadTestsFromNames(cases)
     return test_suite
 

@@ -54,7 +54,7 @@ from monai.transforms import (
     ToDeviced,
 )
 from monai.utils.enums import DataStatsKeys
-from tests.utils import skip_if_no_cuda
+from tests.util import skip_if_no_cuda
 
 device = "cpu"
 n_workers = 2
@@ -171,7 +171,6 @@ class TestImageAnalyzer(Analyzer):
 
 
 class TestDataAnalyzer(unittest.TestCase):
-
     def setUp(self):
         self.test_dir = tempfile.TemporaryDirectory()
         work_dir = self.test_dir.name

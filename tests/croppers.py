@@ -20,11 +20,10 @@ from monai.data.meta_tensor import MetaTensor
 from monai.transforms import Randomizable
 from monai.transforms.lazy.functional import apply_pending
 from monai.transforms.transform import MapTransform
-from tests.utils import TEST_NDARRAYS_ALL, assert_allclose
+from tests.util import TEST_NDARRAYS_ALL, assert_allclose
 
 
 class CropTest(unittest.TestCase):
-
     @staticmethod
     def get_arr(shape):
         return np.random.randint(100, size=shape).astype(float)

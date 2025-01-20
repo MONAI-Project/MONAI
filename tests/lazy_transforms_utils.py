@@ -16,7 +16,7 @@ from copy import deepcopy
 from monai.data import MetaTensor, set_track_meta
 from monai.transforms import InvertibleTransform, MapTransform, Randomizable
 from monai.transforms.lazy.functional import apply_pending
-from tests.utils import assert_allclose
+from tests.util import assert_allclose
 
 apply_transforms_kwargs = ("pending", "mode", "padding_mode", "dtype", "align_corners")
 
@@ -64,7 +64,7 @@ def test_resampler_lazy(
     resampler.lazy = True
     pending_output = resampler(**deepcopy(call_param))
     if output_idx is not None:
-        expected_output, pending_output = expected_output[output_idx], pending_output[output_idx]
+        expected_output, pending_output = (expected_output[output_idx], pending_output[output_idx])
     if output_key is not None:
         non_lazy_out, lazy_out = expected_output[output_key], pending_output[output_key]
     else:

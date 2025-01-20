@@ -13,11 +13,10 @@ from __future__ import annotations
 
 import unittest
 
-from tests.utils import query_memory
+from tests.util import query_memory
 
 
 class TestQueryMemory(unittest.TestCase):
-
     def test_output_str(self):
         self.assertTrue(isinstance(query_memory(2), str))
         all_device = query_memory(-1)

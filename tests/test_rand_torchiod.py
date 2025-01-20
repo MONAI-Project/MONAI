@@ -20,7 +20,7 @@ from parameterized import parameterized
 
 from monai.transforms import RandTorchIOd
 from monai.utils import optional_import, set_determinism
-from tests.utils import assert_allclose
+from tests.util import assert_allclose
 
 _, has_torchio = optional_import("torchio")
 
@@ -31,7 +31,6 @@ TEST_PARAMS = [[{"keys": ["img1", "img2"], "name": "RandomAffine"}, {"img1": TES
 
 @skipUnless(has_torchio, "Requires torchio")
 class TestRandTorchIOd(unittest.TestCase):
-
     @parameterized.expand(TEST_PARAMS)
     def test_random_transform(self, input_param, input_data):
         set_determinism(seed=0)

@@ -21,7 +21,7 @@ from monai.transforms import Compose
 from monai.transforms.lazy.functional import apply_pending
 from monai.transforms.transform import MapTransform
 from monai.utils.enums import NumpyPadMode, PytorchPadMode
-from tests.utils import TEST_NDARRAYS_ALL, assert_allclose
+from tests.util import TEST_NDARRAYS_ALL, assert_allclose
 
 MODES = []
 # Test modes
@@ -51,7 +51,6 @@ TESTS_PENDING_MODE = [["constant", "zeros"], ["edge", "border"]]
 
 
 class PadTest(unittest.TestCase):
-
     @staticmethod
     def get_arr(shape):
         return np.random.randint(100, size=shape).astype(float)

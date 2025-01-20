@@ -130,6 +130,7 @@ temp/
 .DS_Store
 
 # temporary testing data MedNIST
+tests/integration/testing_data/MedNIST*
 tests/testing_data/MedNIST*
 tests/testing_data/*Hippocampus*
 tests/testing_data/*.tiff
